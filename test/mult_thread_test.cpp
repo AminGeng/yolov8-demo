@@ -15,14 +15,14 @@ int main_test(int thread_id)
     {
         std::vector<Bbox_struct> bboxs;
         y8_demo.infer(original_image.data, original_image.rows, original_image.cols, original_image.channels(), bboxs);
-        // draw inference result
-        auto image = original_image.clone();
-        for (int i = 0; i < bboxs.size(); i++)
-        {
-            cv::rectangle(image, cv::Point(bboxs[i].x1, bboxs[i].y1), cv::Point(bboxs[i].x2, bboxs[i].y2), cv::Scalar(0, 255, 0), 2);
-            cv::putText(image, std::to_string(bboxs[i].class_id), cv::Point(bboxs[i].x1, bboxs[i].y1), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 2);
-        }
-        cv::imwrite(s_id +"_" + std::to_string(i)+".jpg", image);
+        // // draw inference result
+        // auto image = original_image.clone();
+        // for (int i = 0; i < bboxs.size(); i++)
+        // {
+        //     cv::rectangle(image, cv::Point(bboxs[i].x1, bboxs[i].y1), cv::Point(bboxs[i].x2, bboxs[i].y2), cv::Scalar(0, 255, 0), 2);
+        //     cv::putText(image, std::to_string(bboxs[i].class_id), cv::Point(bboxs[i].x1, bboxs[i].y1), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 2);
+        // }
+        // cv::imwrite(s_id +"_" + std::to_string(i)+".jpg", image);
     }
     return 0;
 }
