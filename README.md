@@ -38,43 +38,8 @@ make -j4
 # **Issue**
 run `./multi_thread_test 1` no problem. but `n>1` like `./multi_thread_test 12` error!
 >This error does not always occur, but the likelihood increases with a higher number of threads. I have tested it on Ubuntu 16 (GCC 5.4), Ubuntu 18 (GCC 7.5), and Ubuntu 22.04 (WSL with GCC 11.4), and the issue persists across all versions.”
+## Fix Method
+1. using `MNN::CV` in multithreaded scenarios, locking is required
 
-while debugging, i find that `line 55` in [yolov8_demo.cpp](test/yolov8/yolov8_demo.cpp) is one of the causes of the error. 
-```cpp
-input_img = MNN::CV::resize(input_img, MNN::CV::Size(img_size, img_size), 0, 0, MNN::CV::INTER_LINEAR, -1, {0., 0., 0.}, {1. / 255., 1. / 255., 1. / 255.});
-```
-
-error like
-```
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-Segmentation fault (core dumped)
-```
-
-```
-root@a2a9ec0ed379:~/Amin/libs/MNN_libs/yolov8-demo/test/build# ./multi_thread_test 12
-The device support i8sdot:0, support fp16:0, support i8mm: 0
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-### box: {31.553406, 37.296143, 299.393494, 339.611145}, class_idx: 0, score: 0.423997
-*** Error in `./multi_thread_test': double free or corruption (fasttop): 0x00007f34f0c38f30 ***
-======= Backtrace: =========
-/lib/x86_64-linux-gnu/libc.so.6(+0x777f5)[0x7f35135867f5]
-/lib/x86_64-linux-gnu/libc.so.6(+0x8038a)[0x7f351358f38a]
-/lib/x86_64-linux-gnu/libc.so.6(cfree+0x4c)[0x7f351359358c]
-/root/Amin/libs/MNN_libs/yolov8-demo/test/build/yolov8/libyolov8_demo.so(_ZN3MNN20EagerBufferAllocator15getFromFreeListEPSt8multimapImNS_9SharedPtrINS0_4NodeEEESt4lessImESaISt4pairIKmS4_EEEmbm+0x3ea)[0xSegmentation fault (core dumped)
-```
+2. using `MNN::Module` api, multithreaded scenarios, reference:
+    https://mnn-docs.readthedocs.io/en/latest/inference/module.html#id6
